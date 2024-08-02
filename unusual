@@ -1,0 +1,42 @@
+<h1>Notification Form</h1>
+<?php if (!empty($message)): ?>
+    <p><?= esc($message) ?></p>
+<?php endif; ?>
+<form action="/notification/save" method="post">
+    <?= csrf_field() ?>
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br>
+    <label for="start_time">Start Time:</label>
+    <input type="datetime-local" id="start_time" name="start_time" required><br>
+    <label for="end_time">End Time:</label>
+    <input type="datetime-local" id="end_tx fvghyygvime" name="end_time" required><br>
+    <button type="submit">Submit</button>
+</form>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        function notifyUser() {
+            if (Notification.permission === 'granted') {
+                navigator.serviceWorker.getRegistration().then(function(reg) {
+                    reg.showNotification('You have a new notification!');
+                });
+            } else {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        navigator.serviceWorker.getRegistration().then(function(reg) {
+                            reg.showNotification('You have a new notification!');
+                        });
+                    }
+                });
+            }
+        }
+        window.onload = function() {
+            notifyUser();
+        }

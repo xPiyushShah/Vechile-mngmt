@@ -1,0 +1,137 @@
+                 if (result == 1) {
+                        $('#modal_md').modal('hide');
+                        alert('Saved successfully');
+                        getData();
+                    } else {
+                        alert('Already exist');
+                    }
+                    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Brand Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .form-label {
+            margin-bottom: 0.5rem;
+        }
+        .btn {
+            margin-top: 1rem;
+        }
+        .data-display {
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fetch Brand Data</h1>
+    
+    <form id="fetchBrandForm">
+        <div class="mb-3">
+            <label for="brandInput" class="form-label">Brand</label>
+            <input type="text" class="form-control" id="brandInput" name="brand" required>
+            <div id="brandData" class="data-display"></div>
+        </div>
+        <button type="button" id="fetchDataBtn" class="btn btn-primary">Fetch Data</button>
+    </form>
+    
+    <form id="editPurData" style="margin-top: 2rem;">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+            <div id="nameData" class="data-display"></div>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="text" class="form-control" id="amount" name="amount" required>
+            <div id="amountData" class="data-display"></div>
+        </div>
+        <div class="mb-3">
+            <label for="brand" class="form-label">Brand</label>
+            <input type="text" class="form-control" id="brand" name="brand" required>
+            <div id="brandDisplay" class="data-display"></div>
+        </div>
+        <div class="mb-3">
+            <label for="pending-amount" class="form-label">Pending Amount</label>
+            <input type="text" class="form-control" id="pending-amount" name="pend" required>
+            <div id="pendingAmountData" class="data-display"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <script>
+        $(document).ready(function() {
+            $('#fetchDataBtn').on('click', function() {
+                var brand = $('#brandInput').val();
+
+                if (brand === '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Brand field cannot be empty!'
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    url: '<?= base_url('fetchBrandData') ?>', // Adjust URL if necessary
+                    type: 'GET',
+                    data: { brand: brand },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#name').val(response.data.name);
+                            $('#amount').val(response.data.amount);
+                            $('#brand').val(response.data.brand);
+                            $('#pending-amount').val(response.data.pend);
+
+                            // Display data below the corresponding input fields
+                            $('#brandData').text(response.data.brand ? 'Brand: ' + response.data.brand : 'No brand data available.');
+                            $('#nameData').text(response.data.name ? 'Name: ' + response.data.name : 'No name data available.');
+                            $('#amountData').text(response.data.amount ? 'Amount: ' + response.data.amount : 'No amount data available.');
+                            $('#pendingAmountData').text(response.data.pend ? 'Pending Amount: ' + response.data.pend : 'No pending amount data available.');
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while fetching data.'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+    public function fetch()
+    {
+        $vechId = $this->request->getVar('brand');
+    
+        $vechData = $this->datatables->getWhere(['brand' => $vechId])->getRow();
+    
+        if ($vechData) {
+            $response = [
+                'status' => 'success',
+                'data' => [
+                    'amount' => $vechData->price,
+                    'brand' => $vechData->brand
+                ]
+            ];
+        } else {
+            $response = ['status' => 'error', 'message' => 'No data found .'];
+        }
+    
+        return $this->response->setJSON($response);
+    }
